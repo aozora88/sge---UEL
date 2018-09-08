@@ -1,2 +1,0 @@
-quadra: cep/id = 123456 posx = 45.000000 posy = 45.000000 width = 2.000000 hight = 2.000000 cor = red borda = blue
- 

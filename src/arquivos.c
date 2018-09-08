@@ -55,18 +55,34 @@ struct eqp{
 	char *stroke;
     struct eqp *esq;
 	struct eqp *dir;
-	//struct eqp *pai;
+};
+
+struct EC{
+	char *CNPJ;
+	char tipo;
+	char *CEP;
+	char face;
+	int num;
+	char *nome;
+	struct EC *dir;
+	struct EC *esq;
+};
+
+struct ECtipo{
+	char *tipo;
+	char *descript;
+	struct EC *lista;
+	struct ECtipo *dir;
+	struct ECtipo *esq;
 };
 
 struct structure{
 
 	struct eqp *tree;
 	struct eqp *quadras;
-	struct eqp *equips;
 	struct eqp *torres;
-	struct eqp *hids;
-	struct eqp *semafs;
-
+	struct ECtipo *type;
+	struct EC *treeEC;
 };
 
 
@@ -91,6 +107,32 @@ reg *path_treat(reg *arquivos_path, int aux){
 
 }
 
+void lerEC(structure *arvores, char *path, char *name){
+	FILE *arq;
+	char *entrada;
+	char comando[100];
+
+	ECtipo *est_comerciais = NULL;
+
+	entrada = calloc(strlen(path)+strlen(name)+2,sizeof(char));
+	strcpy(entrada,path);
+	strcat(entrada,name);
+
+	arq = fopen(entrada,"r");
+	if(arq == NULL){
+         printf("erro na abertura do arquivo .ec de entrada\n");
+    }else{
+    	while(1){
+    		fgets(comando,sizeof(comando),arq);
+    		if(feof(arq)){
+    			break;
+    		}
+    		controlEC(arvores,est_comerciais,comando);
+    	}
+    }	fclose(arq);
+
+}
+
 void ler_2(reg *arquivos_path,cor *cores,structure *arvores){
 
 	FILE *arq;
@@ -105,7 +147,7 @@ void ler_2(reg *arquivos_path,cor *cores,structure *arvores){
 
 	arq = fopen(entrada,"r");
 	if(arq == NULL){
-         printf("erro na abertura do arquivo 2 de entrada\n");
+         printf("erro na abertura do arquivo .qry de entrada\n");
     }else{
     	while(1){
     		fgets(comando,sizeof(comando),arq);
@@ -117,9 +159,7 @@ void ler_2(reg *arquivos_path,cor *cores,structure *arvores){
     }	fclose(arq);
     saida = gera_saida(arquivos_path,2);
     mapa(arvores->tree,cores,saida);
-	if(arquivos_path->ec_entrada!=NULL){
-		//lerEC();
-	}
+
 }
 
 void ler(reg *arquivos_path,int argc, const char *argv[]){
@@ -130,10 +170,12 @@ void ler(reg *arquivos_path,int argc, const char *argv[]){
 	char comando[100], *entrada;
 	structure *arvores = malloc(sizeof(structure));
 	
-	arvores->tree = NULL;
-	arvores->equips = NULL;
-	arvores->quadras = NULL;
-	arvores->torres = NULL;
+	arvores->tree = malloc(sizeof(eqp));
+	arvores->tree->id = NULL;
+	arvores->quadras = malloc(sizeof(eqp));
+	arvores->quadras->id = NULL;
+	arvores->torres = malloc(sizeof(eqp));
+	arvores->torres->id = NULL;
 
 	cores = malloc(sizeof(cor));
 
@@ -155,9 +197,18 @@ void ler(reg *arquivos_path,int argc, const char *argv[]){
         	}
         	fclose(arq);
      	}
+
+	//le outros arquivos
     if(arquivos_path->seg_entrada!=NULL){
     	ler_2(arquivos_path,cores,arvores);
     }
+
+	if(arquivos_path->ec_entrada!=NULL){
+		lerEC(arvores,arquivos_path->entrada,arquivos_path->ec_entrada);
+	}
+	if(arquivos_path->pm_entrada!=NULL){
+		//lerPM();
+	}
 }
 
 
@@ -169,7 +220,8 @@ void consultas(reg *arquivos_path, char *comando, forma *formas, char *parm){
 
 	saida = defsaida(arquivos_path);
 
-	for(i=1;saida[i]!='.';i++);
+	int tam = strlen(saida);
+	for(i=tam;saida[i]!='.';i--);
 	saida[i+1] = 't';
 	saida[i+2] = 'x';
 	saida[i+3] = 't';
@@ -183,6 +235,9 @@ void consultas(reg *arquivos_path, char *comando, forma *formas, char *parm){
 
 	if(strcmp(parm,"-1")==0){
 		txt = fopen(saida,"a");
+		if(txt==NULL){
+			printf("erro na abertura do arquivo txt\n");
+		}
 		fprintf(txt, "\n%s", comando);
 		if(formas[i].sobrep == j){
 			fprintf(txt,"%s\n","SIM");

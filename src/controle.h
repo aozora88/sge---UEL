@@ -6,6 +6,7 @@ typedef struct forma forma;
 typedef struct eqp eqp;
 typedef struct cor cor;
 typedef struct structure structure;
+typedef struct ECtipo ECtipo;
 
 /*
 salva o endereço dos arquivos de saida e entrada definidos nos argumentos do programa
@@ -26,5 +27,10 @@ void control(reg *arquivos_path, char *comando, forma *formas, cor *cores, struc
 identifica comando do arquivo .qry
 */
 void control2(reg *arquivos_path,char *comando,cor *cores,forma *formas,structure *arvores);
+
+/*
+identifica comandos do arquivo .ec
+*/
+void controlEC(structure *arvores, ECtipo *est_comerciais,char *comando);
 
 #endif 

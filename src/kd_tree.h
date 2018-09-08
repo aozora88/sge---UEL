@@ -2,6 +2,7 @@
 #define _KD_TREE_LIB_
 
 typedef struct eqp eqp;
+typedef struct ECtipo ECtipo;
 
 /*
 cria um nó
@@ -9,9 +10,14 @@ cria um nó
 eqp *createTree(char *id,char tipo, float x, float y, float l, float a);
 
 /*
+cria um novo tipo de estabelecimento comercial
+*/
+//ECtipo *createComercio(char *sigla, char *descrição);
+
+/*
 insere na arvore
 */
-void insereTree(eqp **tree, eqp *aux, int i);
+void insereTree(void *st, eqp *aux, int i);
 
 /*
 retorna o nó pai do nó filho

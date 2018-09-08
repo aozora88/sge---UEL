@@ -204,6 +204,7 @@ void muda_cor(eqp **urbanEQP,char *comando){
 
 void printTreeSVG(eqp *tree, cor *cores, FILE *saida){
 
+
 	////////////////////////////////////////////////
 	if(tree->tipo=='h'){
 		if(tree->fill==NULL){

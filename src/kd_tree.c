@@ -13,7 +13,14 @@ struct eqp{
 	char *stroke;
     struct eqp *esq;
 	struct eqp *dir;
-	//struct eqp *pai;
+};
+
+struct ECtipo{
+	char *tipo;
+	char *descript;
+	struct EC *lista;
+	struct ECtipo *dir;
+	struct ECtipo *esq;
 };
 
 //==============================================
@@ -31,43 +38,50 @@ eqp *createTree(char *id, char tipo,float x, float y, float l, float a){
 	tree->stroke = NULL;
 	tree->esq=NULL;
 	tree->dir=NULL;
-	//tree->pai = NULL;
 
 	return tree;
 }
+
+ /*ECtipo *createComercio(char *sigla, char *descrição){
+	 ECtipo *aux = malloc(sizeof(ECtipo));
+
+	 aux->tipo = malloc(strlen(sigla)*sizeof(char));
+	 strcpy(aux->tipo,sigla);
+	 aux->descript = malloc(strlen(descriçao)*sizeof(char));
+	 strcpy(aux->descript,descriçao);
+	 aux->lista = NULL;
+	 aux->dir = NULL;
+	 aux->esq = NULL;
+
+	 return aux;
+}*/
 //==============================================
-void insereTree(eqp **tree, eqp *aux, int i){
+void insereTree(void *st, eqp *aux, int i){
 
-	/*if(*tree!=NULL){
-		printf("%s ",aux->id);
-		printf("%f %d\n",(*tree)->pos[0],i);
-	}*/
+	eqp *tree = st;
+	
 
-	if(*tree==NULL){
-		//subNo((*tree),aux->id,aux->tipo, aux->pos[0], aux->pos[1], aux->tam[0], aux->tam[1], aux->esq, aux->dir, aux->fill, aux->stroke, NULL);
-		*tree = aux;
+	if(tree->id==NULL){
+		subNo(&tree, aux->id,aux->tipo, aux->pos[0], aux->pos[1], aux->tam[0], aux->tam[1], aux->esq, aux->dir, aux->fill, aux->stroke);
 		return;
 	}
 	
 
-	if(aux->pos[i] < (*tree)->pos[i]){
-		//printf("esq: %s %s\n",aux->id,(*tree)->id);
-		if((*tree)->esq==NULL){
-			(*tree)->esq = aux;
-			//subNo((*tree)->esq,aux->id,aux->tipo, aux->pos[0], aux->pos[1], aux->tam[0], aux->tam[1], aux->esq, aux->dir, aux->fill, aux->stroke, NULL);
+	if(aux->pos[i] < tree->pos[i]){
+		if(tree->esq==NULL){
+			subNo(&(tree)->esq,aux->id,aux->tipo, aux->pos[0], aux->pos[1], aux->tam[0], aux->tam[1], aux->esq, aux->dir, aux->fill, aux->stroke);
 			return;
 		}
-        insereTree(&(*tree)->esq,aux,!i);
+        insereTree(tree->esq,aux,!i);
 	}else{
-		//printf("dir: %s %s\n",aux->id,(*tree)->id);
-		if((*tree)->dir==NULL){
-			(*tree)->dir = aux;
-			//subNo((*tree)->dir,aux->id,aux->tipo, aux->pos[0], aux->pos[1], aux->tam[0], aux->tam[1], aux->esq, aux->dir, aux->fill, aux->stroke, NULL);
+		if(tree->dir==NULL){
+			subNo(&(tree)->dir,aux->id,aux->tipo, aux->pos[0], aux->pos[1], aux->tam[0], aux->tam[1], aux->esq, aux->dir, aux->fill, aux->stroke);
 			return;
 		}
-		insereTree(&(*tree)->dir,aux,!i);
+		insereTree(tree->dir,aux,!i);
 	}
 }
+
 //=============================================
 eqp *getPai(eqp *tree,eqp *filho){
 
@@ -173,7 +187,9 @@ void getMinI(eqp *tree,eqp *menor,int pos){
 //=============================================
 void subNo(eqp **tree,char *id,char tipo, float x, float y, float l, float a, eqp *esq, eqp *dir, char *fill, char *stroke){
 	
-	*tree = calloc(1,sizeof(eqp));
+	if(*tree==NULL){
+		*tree = calloc(1,sizeof(eqp));
+	}
 	
 	(*tree)->id = calloc(strlen(id),sizeof(char));
     strcpy((*tree)->id,id);
@@ -202,8 +218,6 @@ void subNo(eqp **tree,char *id,char tipo, float x, float y, float l, float a, eq
 
 void removeNo(eqp **tree,eqp **filho){
 	eqp *pai;
-
-	printf("%f\n",(*tree)->pos[0]);
 
 	pai = getPai(*tree,*filho);
 

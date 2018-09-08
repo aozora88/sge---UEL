@@ -59,15 +59,32 @@ struct cor{
 
 };
 
+struct EC{
+	char *CNPJ;
+	char tipo;
+	char *CEP;
+	char face;
+	int num;
+	char *nome;
+	struct EC *dir;
+	struct EC *esq;
+};
+
+struct ECtipo{
+	char *tipo;
+	char *descript;
+	struct EC *lista;
+	struct ECtipo *dir;
+	struct ECtipo *esq;
+};
+
 struct structure{
 
 	struct eqp *tree;
 	struct eqp *quadras;
-	struct eqp *equips;
 	struct eqp *torres;
-	struct eqp *hids;
-	struct eqp *semafs;
-
+	struct ECtipo *type;
+	struct EC *treeEC;
 };
 
 
@@ -126,6 +143,8 @@ void control(reg *arquivos_path, char *comando, forma *formas, cor *cores, struc
 	float dist;
 	eqp *new;
 
+	//printf("%s\n",comando);
+
 	switch(comando[0]){
 		case 'n':
 			max = transform(&comando[3]);
@@ -156,6 +175,7 @@ void control(reg *arquivos_path, char *comando, forma *formas, cor *cores, struc
 		case 'o':
 			formas = calc_sob(comando,formas);
 			consultas(arquivos_path, comando, formas, "-1");
+			
 			break;
 		case 'i':
 			booleano = interno(comando,formas);
@@ -177,8 +197,9 @@ void control(reg *arquivos_path, char *comando, forma *formas, cor *cores, struc
 
 			//insere uma quadra na arvore e na arvore de quadras
 			new = createTree(vet[0], 'q', atof(vet[1]), atof(vet[2]), atof(vet[3]), atof(vet[4]));
-			insereTree(&(arvores)->tree, new, 0);
-			insereTree(&(arvores)->quadras, new, 0);
+
+			insereTree(arvores->tree, new, 0);
+			insereTree(arvores->quadras, new, 0);
 			break;
 		case 'h':
 			//insere um hifrante na arvore e na arvore de equipamentos
@@ -186,8 +207,8 @@ void control(reg *arquivos_path, char *comando, forma *formas, cor *cores, struc
 			vet[2] = tiran(vet[2]);
 
 			new = createTree(vet[0], 'h', atof(vet[1]), atof(vet[2]), 5, 5);
-			insereTree(&(arvores)->tree, new, 0);
-			insereTree(&(arvores)->hids, new, 0);
+			insereTree(arvores->tree, new, 0);
+			
 			break;
 		case 's':
 			//insere um semaforo na arvore e na arvore de equipamentos
@@ -195,8 +216,7 @@ void control(reg *arquivos_path, char *comando, forma *formas, cor *cores, struc
 			vet[2] = tiran(vet[2]);
 
 			new = createTree(vet[0], 's', atof(vet[1]), atof(vet[2]), 5, 5);
-			insereTree(&(arvores)->tree, new, 0);
-			insereTree(&(arvores)->semafs, new, 0);
+			insereTree(arvores->tree, new, 0);
 
 			break;
 		case 't':
@@ -205,8 +225,8 @@ void control(reg *arquivos_path, char *comando, forma *formas, cor *cores, struc
 			vet[2] = tiran(vet[2]);
 
 			new = createTree(vet[0], 't', atof(vet[1]), atof(vet[2]), 5, 5);
-			insereTree(&(arvores)->tree, new, 0);
-			insereTree(&(arvores)->torres, new, 0);
+			insereTree(arvores->tree, new, 0);
+			insereTree(arvores->torres, new, 0);
 			break;
 		case 'a':
 			saida = geraSVG(arquivos_path,formas,comando);
@@ -302,3 +322,25 @@ void control2(reg *arquivos_path,char *comando,cor *cores, forma *formas, struct
 	}*/
 }
 
+void controlEC(structure *arvores, ECtipo *est_comerciais, char *comando){
+
+	ECtipo *auxTipo;
+	int i;
+
+	switch(comando[0]){
+		case 't':
+			//lista indices;
+			
+			break;
+		case 'e':
+			//add na kd-tree geral;  
+			//add k-dtree e.c ; 
+			//add lista indices cep ; 
+			//hash cnpj;
+			break;
+		default:
+			printf("comando invalido\n");
+			break;
+	}
+
+}

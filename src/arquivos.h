@@ -7,12 +7,18 @@ typedef struct forma forma;
 typedef struct eqp eqp;
 typedef struct cor cor;
 typedef struct structure structure;
+typedef struct ECtipo ECtipo;
 
 
 /*
 formata as strings de entrada e saida
 */
 reg *path_treat(reg *arquivos_path, int aux);
+
+/*
+le os comandos do arquivo .ec
+*/
+void lerEC(structure *arvores, char *path, char *name);
 
 /*
 lê os comandos do arquivo .qry
