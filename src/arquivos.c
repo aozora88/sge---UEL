@@ -68,12 +68,23 @@ struct EC{
 	struct EC *esq;
 };
 
+struct Morador{
+	char *CPF;
+	char *nome;
+	char *sobrenome;
+	char sexo;
+	char *nascimento;
+	char *CEP;
+	char face;
+	int num;
+	char *compl;
+	struct Morador *next;
+};
+
 struct ECtipo{
 	char *tipo;
 	char *descript;
-	struct EC *lista;
-	struct ECtipo *dir;
-	struct ECtipo *esq;
+	struct EC *estabs;
 };
 
 struct structure{
@@ -81,8 +92,17 @@ struct structure{
 	struct eqp *tree;
 	struct eqp *quadras;
 	struct eqp *torres;
-	struct ECtipo *type;
-	struct EC *treeEC;
+};
+
+struct hashTables{
+
+	struct ECtipo *hashTipos;
+	struct EC *hashCNPJ;
+	struct EC *ec_CEP;
+	struct Morador *hashCPF;
+	struct Morador *CEP;
+	int size[4];
+
 };
 
 
@@ -107,12 +127,13 @@ reg *path_treat(reg *arquivos_path, int aux){
 
 }
 
-void lerEC(structure *arvores, char *path, char *name){
-	FILE *arq;
-	char *entrada;
-	char comando[100];
+void lerPM(hashTables *hashTables,char *path,char *name){
 
-	ECtipo *est_comerciais = NULL;
+	char *entrada, comando[100];
+	FILE *arq;
+
+	hashTables->hashCPF = NULL;
+	hashTables->CEP = NULL;
 
 	entrada = calloc(strlen(path)+strlen(name)+2,sizeof(char));
 	strcpy(entrada,path);
@@ -127,9 +148,40 @@ void lerEC(structure *arvores, char *path, char *name){
     		if(feof(arq)){
     			break;
     		}
-    		controlEC(arvores,est_comerciais,comando);
+    		controlPM(hashTables,comando);
     	}
     }	fclose(arq);
+
+}
+
+hashTables *lerEC(structure *arvores, char *path, char *name){
+	FILE *arq;
+	char *entrada;
+	char comando[100];
+
+	hashTables *hashTables = malloc(sizeof(hashTables));
+	hashTables->hashTipos = NULL;
+	hashTables->ec_CEP = NULL;
+	hashTables->hashCNPJ = NULL;
+
+	entrada = calloc(strlen(path)+strlen(name)+2,sizeof(char));
+	strcpy(entrada,path);
+	strcat(entrada,name);
+
+	arq = fopen(entrada,"r");
+	if(arq == NULL){
+         printf("erro na abertura do arquivo .ec de entrada\n");
+    }else{
+    	while(1){
+    		fgets(comando,sizeof(comando),arq);
+    		if(feof(arq)){
+    			break;
+    		}
+    		controlEC(arvores,hashTables,comando);
+    	}
+    }	fclose(arq);
+
+	return hashTables;
 
 }
 
@@ -198,16 +250,16 @@ void ler(reg *arquivos_path,int argc, const char *argv[]){
         	fclose(arq);
      	}
 
+	hashTables *Tables;
 	//le outros arquivos
     if(arquivos_path->seg_entrada!=NULL){
     	ler_2(arquivos_path,cores,arvores);
     }
-
 	if(arquivos_path->ec_entrada!=NULL){
-		lerEC(arvores,arquivos_path->entrada,arquivos_path->ec_entrada);
+		Tables = lerEC(arvores,arquivos_path->path_entrada,arquivos_path->ec_entrada);
 	}
 	if(arquivos_path->pm_entrada!=NULL){
-		//lerPM();
+		lerPM(Tables, arquivos_path->path_entrada, arquivos_path->pm_entrada);
 	}
 }
 

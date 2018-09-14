@@ -7,6 +7,9 @@ typedef struct eqp eqp;
 typedef struct cor cor;
 typedef struct structure structure;
 typedef struct ECtipo ECtipo;
+typedef struct EC EC;
+typedef struct hashTables hashTables;
+typedef struct Morador Morador;
 
 /*
 salva o endereço dos arquivos de saida e entrada definidos nos argumentos do programa
@@ -31,6 +34,11 @@ void control2(reg *arquivos_path,char *comando,cor *cores,forma *formas,structur
 /*
 identifica comandos do arquivo .ec
 */
-void controlEC(structure *arvores, ECtipo *est_comerciais,char *comando);
+void controlEC(structure *arvores, hashTables *hashTables,char *comando);
+
+/*
+identifica comandos do arquivo .pm
+*/
+void controlPM(hashTables *hash, char *comando);
 
 #endif 

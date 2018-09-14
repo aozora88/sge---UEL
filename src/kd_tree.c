@@ -15,14 +15,6 @@ struct eqp{
 	struct eqp *dir;
 };
 
-struct ECtipo{
-	char *tipo;
-	char *descript;
-	struct EC *lista;
-	struct ECtipo *dir;
-	struct ECtipo *esq;
-};
-
 //==============================================
 eqp *createTree(char *id, char tipo,float x, float y, float l, float a){
 	eqp *tree = calloc(1,sizeof(eqp));
@@ -41,20 +33,6 @@ eqp *createTree(char *id, char tipo,float x, float y, float l, float a){
 
 	return tree;
 }
-
- /*ECtipo *createComercio(char *sigla, char *descrição){
-	 ECtipo *aux = malloc(sizeof(ECtipo));
-
-	 aux->tipo = malloc(strlen(sigla)*sizeof(char));
-	 strcpy(aux->tipo,sigla);
-	 aux->descript = malloc(strlen(descriçao)*sizeof(char));
-	 strcpy(aux->descript,descriçao);
-	 aux->lista = NULL;
-	 aux->dir = NULL;
-	 aux->esq = NULL;
-
-	 return aux;
-}*/
 //==============================================
 void insereTree(void *st, eqp *aux, int i){
 

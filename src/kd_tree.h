@@ -2,17 +2,12 @@
 #define _KD_TREE_LIB_
 
 typedef struct eqp eqp;
-typedef struct ECtipo ECtipo;
+
 
 /*
-cria um nó
+cria e retorna um nó do tipo equipamento urbano
 */
 eqp *createTree(char *id,char tipo, float x, float y, float l, float a);
-
-/*
-cria um novo tipo de estabelecimento comercial
-*/
-//ECtipo *createComercio(char *sigla, char *descrição);
 
 /*
 insere na arvore

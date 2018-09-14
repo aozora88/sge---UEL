@@ -10,6 +10,7 @@
 #include "controle.h"
 #include "city_consultas.h"
 #include "kd_tree.h"
+#include "Tables.h"
 
 struct reg{
 	
@@ -70,12 +71,23 @@ struct EC{
 	struct EC *esq;
 };
 
+struct Morador{
+	char *CPF;
+	char *nome;
+	char *sobrenome;
+	char sexo;
+	char *nascimento;
+	char *CEP;
+	char face;
+	int num;
+	char *compl;
+	struct Morador *next;
+};
+
 struct ECtipo{
 	char *tipo;
 	char *descript;
-	struct EC *lista;
-	struct ECtipo *dir;
-	struct ECtipo *esq;
+	struct EC *estabs;
 };
 
 struct structure{
@@ -83,8 +95,16 @@ struct structure{
 	struct eqp *tree;
 	struct eqp *quadras;
 	struct eqp *torres;
-	struct ECtipo *type;
-	struct EC *treeEC;
+};
+
+struct hashTables{
+
+	struct ECtipo *hashTipos;
+	struct EC *hashCNPJ;
+	struct EC *ec_CEP;
+	struct Morador *hashCPF;
+	struct Morador *CEP;
+	int size[4];
 };
 
 
@@ -242,7 +262,7 @@ void control(reg *arquivos_path, char *comando, forma *formas, cor *cores, struc
 			mapa(arvores->tree,cores,saida);
 			break;
 		default:
-			printf("comando invalido\n");
+			printf("comando %s invalido\n", comando);
 			break;
 
 	}
@@ -305,7 +325,10 @@ void control2(reg *arquivos_path,char *comando,cor *cores, forma *formas, struct
 			}
 		}
 
-	}/*else if(comando[2]=='b'){
+	}else{
+		printf("comando %s invalido\n", comando);
+	}
+	/*else if(comando[2]=='b'){
 		int tam = getTamT(torres);
 		radio *vetL = moveLista(torres,tam);
 		vetL = heap(vetL,tam,0);
@@ -322,24 +345,146 @@ void control2(reg *arquivos_path,char *comando,cor *cores, forma *formas, struct
 	}*/
 }
 
-void controlEC(structure *arvores, ECtipo *est_comerciais, char *comando){
+void controlEC(structure *arvores, hashTables *hashTables, char *comando){
 
-	ECtipo *auxTipo;
-	int i;
+	struct ECtipo *aux;
+	static int tam, i, cont;
+	int j;
 
 	switch(comando[0]){
 		case 't':
-			//lista indices;
-			
+			//insere na tabela
+			if(hashTables->hashTipos==NULL){
+				hashTables->size[0] = 100;
+				tam = 100;
+				hashTables->hashTipos = malloc(100*sizeof(ECtipo));
+				i = 0;
+				createTipo(&hashTables->hashTipos[i],&comando[2]);
+				i++;
+
+			}else if(i==tam){
+				hashTables->size[0] += 100;
+				tam = tam+100;
+				hashTables->hashTipos = (ECtipo *) realloc(hashTables->hashTipos, tam*(sizeof(ECtipo)));
+				createTipo(&hashTables->hashTipos[i],&comando[2]);
+				i++;
+
+			}else{
+				createTipo(&hashTables->hashTipos[i],&comando[2]);
+				i++;
+			}
+
 			break;
 		case 'e':
-			//add na kd-tree geral;  
-			//add k-dtree e.c ; 
-			//add lista indices cep ; 
-			//hash cnpj;
+			//hash cep
+			if(hashTables->ec_CEP == NULL){
+				//ordena vetor tipos//
+				heap(hashTables->hashTipos,i);
+
+				hashTables->size[1] = 100;
+				tam = 100;
+				hashTables->ec_CEP = calloc(tam,sizeof(EC));
+				for(j=0;j<tam;j++){
+					hashTables->ec_CEP[j].nome = NULL;
+					hashTables->ec_CEP[j].dir = NULL;
+				}
+				cont = 0;
+			}
+			hashEC(hashTables->ec_CEP,comando,tam,2);
+
+			//hash cnpj
+			if(hashTables->hashCNPJ == NULL){
+				hashTables->hashCNPJ = calloc(tam,sizeof(EC));
+				for(j=0;j<tam;j++){
+					hashTables->hashCNPJ[j].nome = NULL;
+					hashTables->hashCNPJ[j].dir = NULL;
+				}
+			}
+			hashEC(hashTables->hashCNPJ,comando,tam,0);
+
+			cont++;
+			if(cont>=(tam/100)*8){
+				tam = tam+100;
+				hashTables->size[1] += 100;
+				hashTables->ec_CEP = (struct EC *) realloc(hashTables->ec_CEP, tam*(sizeof(EC)));
+				hashTables->hashCNPJ = (struct EC *) realloc(hashTables->hashCNPJ, tam*(sizeof(EC)));
+			}
 			break;
 		default:
-			printf("comando invalido\n");
+			printf("comando %s invalido\n", comando);
+			break;
+	}
+}
+
+void controlPM(hashTables *hashTables, char *comando){
+	static int cont;
+	static int tam;
+	int j;
+
+	switch(comando[0]){
+		case 'p':
+			//hash CPF
+			if(hashTables->hashCPF == NULL){
+				tam = 100;
+				hashTables->size[2] = 100;
+				hashTables->hashCPF = calloc(tam,sizeof(Morador));
+				for(j=0;j<tam;j++){
+					hashTables->hashCPF[j].nome = NULL;
+					hashTables->hashCPF[j].next = NULL;
+				}
+				cont = 0;
+			}
+			hashPessoa(hashTables->hashCPF,comando,tam,0);
+
+			cont++;
+			if(cont>=(tam/100)*8){
+				tam = tam+100;
+				hashTables->size[2] += 100;
+				hashTables->hashCPF = (struct Morador *) realloc(hashTables->hashCPF, tam*(sizeof(Morador)));
+			}
+			break;
+		case 'm':
+			//hash cep
+			if(hashTables->CEP == NULL){
+				tam = 100;
+				hashTables->size[3] = 100;
+				hashTables->CEP = calloc(tam,sizeof(Morador));
+				for(j=0;j<tam;j++){
+					hashTables->CEP[j].nome = NULL;
+					hashTables->CEP[j].next = NULL;
+				}
+				cont = 0;
+			}
+			hashPessoa(hashTables->CEP,comando,tam,1);
+
+			char *vet[6];
+			separaSTR(comando,vet);
+			//procura e retorna por cpf
+			struct Morador found = search_CPF(hashTables->hashCPF,&comando[2],hashTables->size[2]);
+       		//preenche hash cpf
+			AddHashCEP(*(hashTables)->hashCPF,vet);
+			//preenche hash cep
+			struct Morador found2 = search_pessoaCEP(hashTables->CEP,&comando[4],hashTables->size[3]);
+			//sub a mao
+			found2.CPF = calloc(strlen(found.CPF)+1,sizeof(char));
+    		strcpy(found2.CPF,found.CPF);
+    		found2.nome =  calloc(strlen(found.nome)+1,sizeof(char));
+   	 		strcpy(found2.nome,found.nome);
+    		found2.sobrenome = calloc(strlen(found.sobrenome)+1,sizeof(char));
+    		strcpy(found2.sobrenome,found.sobrenome);
+    		found2.sexo = found.sexo;
+    		found2.nascimento = calloc(strlen(found.nascimento)+1,sizeof(char));
+    		strcpy(found2.nascimento,found.nascimento);
+
+			cont++;
+			if(cont>=(tam/100)*8){
+				tam = tam+100;
+				hashTables->size[3] += 100;
+				hashTables->CEP = (struct Morador *) realloc(hashTables->CEP, tam*(sizeof(Morador)));
+			}
+			break;
+		default:
+			printf("comando %s invalido\n", comando);
 			break;
 	}
 
